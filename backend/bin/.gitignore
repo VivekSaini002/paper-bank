@@ -1,0 +1,6 @@
+.gitignore for backend
+target/
+*.class
+*.jar
+uploads/
+.env
