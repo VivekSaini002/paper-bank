@@ -69,6 +69,7 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: dark;
 }
 
 body {
@@ -220,6 +221,11 @@ body {
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px;
+}
+
+select option {
+  color: #000000 !important;
+  background-color: #ffffff !important;
 }
 
 .select-field:focus {

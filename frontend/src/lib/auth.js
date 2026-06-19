@@ -68,9 +68,18 @@ export function AuthProvider({ children }) {
   const isStudent = () => user?.role === 'STUDENT';
   const isAuthenticated = () => !!user;
 
+  const updateUser = (updatedUser) => {
+    setUser(prev => prev ? { ...prev, ...updatedUser } : updatedUser);
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      localStorage.setItem('user', JSON.stringify({ ...parsed, ...updatedUser }));
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout, isAdmin, isStudent, isAuthenticated }}
+      value={{ user, loading, login, register, logout, isAdmin, isStudent, isAuthenticated, updateUser }}
     >
       {children}
     </AuthContext.Provider>

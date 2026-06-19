@@ -80,13 +80,15 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <div className="glass-card" style={{ padding: '28px' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📊</div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '6px' }}>Your Profile</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              {user.course || 'Not specified'} • Roll: {user.rollNo || 'N/A'}
-            </p>
-          </div>
+          <Link href="/dashboard/profile" style={{ textDecoration: 'none' }}>
+            <div className="glass-card" style={{ padding: '28px', cursor: 'pointer', height: '100%' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📊</div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '6px' }}>Your Profile</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                {user.course || 'Not specified'} • Roll: {user.rollNo || 'N/A'}
+              </p>
+            </div>
+          </Link>
         </div>
 
         {/* Recent Papers */}

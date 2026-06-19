@@ -83,4 +83,13 @@ public class AuthService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
+
+    public User updateProfile(String email, String fullName, String rollNo, String course) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setFullName(fullName);
+        user.setRollNo(rollNo);
+        user.setCourse(course);
+        return userRepository.save(user);
+    }
 }

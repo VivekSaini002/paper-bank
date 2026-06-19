@@ -36,8 +36,41 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "User is not authenticated");
+            return ResponseEntity.status(401).body(error);
+        }
+
         User user = authService.getCurrentUser(authentication.getName());
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("id", user.getId());
+        userInfo.put("email", user.getEmail());
+        userInfo.put("fullName", user.getFullName());
+        userInfo.put("rollNo", user.getRollNo());
+        userInfo.put("course", user.getCourse());
+        userInfo.put("role", user.getRole().name().replace("ROLE_", ""));
+        userInfo.put("createdAt", user.getCreatedAt());
+
+        return ResponseEntity.ok(userInfo);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(Authentication authentication, @RequestBody Map<String, String> request) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "User is not authenticated");
+            return ResponseEntity.status(401).body(error);
+        }
+
+        String email = authentication.getName();
+        String fullName = request.get("fullName");
+        String rollNo = request.get("rollNo");
+        String course = request.get("course");
+
+        User user = authService.updateProfile(email, fullName, rollNo, course);
 
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("id", user.getId());

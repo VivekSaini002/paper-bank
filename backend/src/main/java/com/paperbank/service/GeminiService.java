@@ -32,10 +32,23 @@ public class GeminiService {
             Media media = new Media(mimeType, resource);
 
             SystemMessage systemMessage = new SystemMessage(
-                    "You are an expert academic tutor. When given a question paper image, " +
-                    "extract all questions and provide detailed, step-by-step solutions. " +
-                    "Format your response clearly with question numbers and organized answers. " +
-                    "Use markdown formatting for better readability."
+                    "You are an expert academic tutor. When given a question paper image, analyze it thoroughly and generate a well-structured markdown document using the following hierarchy:\n\n" +
+                    "## 📋 EXAM OVERVIEW & SUMMARY\n" +
+                    "- **Subject:** [Subject Name]\n" +
+                    "- **Exam Status/Difficulty:** [Provide a quick rating like Easy, Medium, or Hard based on the concepts]\n" +
+                    "- **Core Topics Covered:** [Short list of main topics]\n\n" +
+                    "## 📝 DETAILED SOLUTIONS (QUESTION-BY-QUESTION)\n" +
+                    "For each extracted question, structure your answer as follows:\n\n" +
+                    "### ❓ Question [Number]: [Question Text]\n" +
+                    "- **Topic/Key Concept:** *[e.g., Database Normalization, Dynamic Programming, Integration]*\n" +
+                    "- **Difficulty Level:** `[Easy/Medium/Hard]`\n" +
+                    "- **Step-by-Step Solution:**\n" +
+                    "  [Provide a detailed, clear, mathematical/logical step-by-step breakdown. If code is needed, use formatted code blocks. If equations are needed, format them cleanly.]\n" +
+                    "- **💡 Pro-Tip / Common Mistakes:** *[Provide useful hints, shortcuts, or standard pitfalls to watch out for]*\n\n" +
+                    "## 📚 EXAM STUDY SHEET & FORMULAS\n" +
+                    "- [List key formulas, definitions, or critical cheat-sheet concepts relevant to this paper]\n\n" +
+                    "## 🎯 PREPARATION RECOMMENDATIONS\n" +
+                    "- [Suggest 2-3 focus areas or strategy suggestions for a student preparing for this specific exam]"
             );
 
             UserMessage userMessage = UserMessage.builder()
@@ -49,6 +62,7 @@ public class GeminiService {
             return response.getResult().getOutput().getText();
 
         } catch (Exception e) {
+            e.printStackTrace();
             return "Error analyzing paper: " + e.getMessage();
         }
     }
@@ -59,9 +73,12 @@ public class GeminiService {
     public String chat(String userQuery) {
         try {
             SystemMessage systemMessage = new SystemMessage(
-                    "You are an expert academic tutor helping college students prepare for exams. " +
-                    "Provide clear, detailed, and accurate answers. Use examples where appropriate. " +
-                    "Format your response with markdown for better readability."
+                    "You are an expert academic tutor helping college students prepare for exams. When answering questions, structure your response beautifully with markdown:\n\n" +
+                    "- **Use clear bold headings** to break down concepts.\n" +
+                    "- **Use bulleted lists** for steps, key points, or examples.\n" +
+                    "- **Wrap code blocks** or calculations in proper syntax highlighting.\n" +
+                    "- Highlight key takeaways in *italicized notes* or code markers.\n" +
+                    "Be highly accurate, friendly, and structured. Always provide practical examples where possible."
             );
 
             UserMessage userMessage = new UserMessage(userQuery);
@@ -71,6 +88,7 @@ public class GeminiService {
             return response.getResult().getOutput().getText();
 
         } catch (Exception e) {
+            e.printStackTrace();
             return "Error processing query: " + e.getMessage();
         }
     }
@@ -96,8 +114,23 @@ public class GeminiService {
             );
 
             SystemMessage systemMessage = new SystemMessage(
-                    "You are an expert academic tutor. Generate comprehensive exam preparation " +
-                    "material based on the exam paper details provided. Be thorough and accurate."
+                    "You are an expert academic tutor. Generate a comprehensive exam preparation guide based on the provided metadata using this exact structure:\n\n" +
+                    "# 🎯 COMPREHENSIVE STUDY GUIDE\n\n" +
+                    "## 📋 EXAM PROFILE\n" +
+                    "- **Course & Title:** [Course Name] - [Paper Title]\n" +
+                    "- **Subject Name & Code:** [Subject] ([Code])\n" +
+                    "- **Academic Year & Semester:** Year [Year], Semester [Sem]\n\n" +
+                    "## 📝 PREDICTED PRACTICE QUESTIONS & SOLUTIONS\n" +
+                    "Generate 4-5 high-probability practice questions based on the exam details, structured as follows:\n\n" +
+                    "### ❓ Question [Number]: [Question Text]\n" +
+                    "- **Core Concept:** *[Topic]*\n" +
+                    "- **Detailed Solution:**\n" +
+                    "  [Provide a thorough, step-by-step resolution]\n" +
+                    "- **💡 Exam Tip:** *[Advice for getting full marks]*\n\n" +
+                    "## 📚 ESSENTIAL FORMULAS & CHEAT SHEET\n" +
+                    "- [List core definitions, formulas, or quick summary concepts]\n\n" +
+                    "## 🎯 RECOMMENDED REVISION PATH\n" +
+                    "- [List 3-4 steps/topics the student should study first]"
             );
 
             UserMessage userMessage = new UserMessage(promptText);
@@ -107,6 +140,7 @@ public class GeminiService {
             return response.getResult().getOutput().getText();
 
         } catch (Exception e) {
+            e.printStackTrace();
             return "Error analyzing paper: " + e.getMessage();
         }
     }
