@@ -66,6 +66,7 @@ export default function Navbar() {
                 <NavLink href="/admin" active={pathname === '/admin'}>Dashboard</NavLink>
                 <NavLink href="/admin/upload" active={pathname === '/admin/upload'}>Upload</NavLink>
                 <NavLink href="/admin/manage" active={pathname === '/admin/manage'}>Manage</NavLink>
+                <NavLink href="/admin/students" active={pathname === '/admin/students'}>Students</NavLink>
               </>
             ) : (
               <>

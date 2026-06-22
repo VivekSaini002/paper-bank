@@ -149,4 +149,5 @@ export const aiAPI = {
 // ========================================
 export const adminAPI = {
   getStats: () => apiRequest('/admin/stats'),
+  getStudents: () => apiRequest('/admin/students'),
 };

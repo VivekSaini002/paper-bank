@@ -15,14 +15,29 @@ export default function PaperDetailPage({ params }) {
   const [downloading, setDownloading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewBlob, setPreviewBlob] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(true);
+  const [previewError, setPreviewError] = useState(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login');
       return;
     }
-    if (user && id) fetchPaper();
+    if (user && id) {
+      fetchPaper();
+      loadPreview();
+    }
   }, [user, authLoading, id]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        window.URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const fetchPaper = async () => {
     try {
@@ -35,17 +50,43 @@ export default function PaperDetailPage({ params }) {
     }
   };
 
+  const loadPreview = async () => {
+    setPreviewLoading(true);
+    setPreviewError(null);
+    try {
+      const blob = await papersAPI.download(id);
+      setPreviewBlob(blob);
+      const url = window.URL.createObjectURL(blob);
+      setPreviewUrl(url);
+    } catch (err) {
+      console.error('Failed to load preview:', err);
+      setPreviewError('Failed to load paper preview.');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      const blob = await papersAPI.download(id);
-      const url = window.URL.createObjectURL(blob);
+      let blob = previewBlob;
+      let url = previewUrl;
+      let shouldRevoke = false;
+      
+      if (!blob) {
+        blob = await papersAPI.download(id);
+        url = window.URL.createObjectURL(blob);
+        shouldRevoke = true;
+      }
+      
       const a = document.createElement('a');
       a.href = url;
       a.download = `${paper.title}.${paper.fileType}`;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
+      if (shouldRevoke) {
+        window.URL.revokeObjectURL(url);
+      }
       a.remove();
     } catch (err) {
       alert('Download failed: ' + err.message);
@@ -148,6 +189,79 @@ export default function PaperDetailPage({ params }) {
               )}
             </button>
           </div>
+        </div>
+
+        {/* Paper Preview Card */}
+        <div className="glass-card animate-fade-in" style={{ padding: '32px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <h2 style={{ fontSize: '1.3rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              📄 Exam Paper Preview
+            </h2>
+            {previewUrl && (
+              <button
+                onClick={handleDownload}
+                className="btn-secondary"
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', padding: '8px 16px' }}
+              >
+                📥 Download Original
+              </button>
+            )}
+          </div>
+
+          {previewLoading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 0', gap: '16px' }}>
+              <div className="spinner" style={{ width: '40px', height: '40px' }} />
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Loading paper preview...</p>
+            </div>
+          ) : previewError ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', gap: '16px', textAlign: 'center' }}>
+              <span style={{ fontSize: '2.5rem' }}>⚠️</span>
+              <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{previewError}</p>
+              <button onClick={loadPreview} className="btn-secondary" style={{ padding: '8px 16px' }}>
+                🔄 Retry Preview
+              </button>
+            </div>
+          ) : (
+            <div>
+              {paper.fileType.toLowerCase() === 'pdf' ? (
+                <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+                  <iframe
+                    src={`${previewUrl}#toolbar=0`}
+                    style={{
+                      width: '100%',
+                      height: '700px',
+                      border: 'none',
+                    }}
+                    title={paper.title}
+                  />
+                </div>
+              ) : (
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  padding: '24px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border)',
+                  overflow: 'auto',
+                  maxHeight: '750px'
+                }}>
+                  <img
+                    src={previewUrl}
+                    alt={paper.title}
+                    style={{
+                      maxWidth: '100%',
+                      height: 'auto',
+                      objectFit: 'contain',
+                      borderRadius: 'var(--radius-sm)',
+                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* AI Analysis Result */}

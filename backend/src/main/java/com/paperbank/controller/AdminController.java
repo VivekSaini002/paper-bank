@@ -1,6 +1,7 @@
 package com.paperbank.controller;
 
 import com.paperbank.model.Role;
+import com.paperbank.model.User;
 import com.paperbank.repository.PaperRepository;
 import com.paperbank.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -32,5 +34,11 @@ public class AdminController {
         stats.put("courses", paperRepository.findDistinctCourses());
         stats.put("years", paperRepository.findDistinctYears());
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/students")
+    public ResponseEntity<List<User>> getAllStudents() {
+        List<User> students = userRepository.findAllByRole(Role.ROLE_STUDENT);
+        return ResponseEntity.ok(students);
     }
 }

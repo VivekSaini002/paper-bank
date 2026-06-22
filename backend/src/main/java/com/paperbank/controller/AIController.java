@@ -30,22 +30,17 @@ public class AIController {
     @PostMapping("/analyze-paper/{id}")
     public ResponseEntity<Map<String, String>> analyzePaper(@PathVariable Long id) {
         Paper paper = paperService.getPaperEntity(id);
-        String result;
-
-        if (paper.getFileType().equalsIgnoreCase("pdf")) {
-            // For PDF, use metadata-based analysis
-            result = geminiService.analyzePaperPdf(
-                    paper.getTitle(),
-                    paper.getSubjectName(),
-                    paper.getSubjectCode(),
-                    paper.getYear(),
-                    paper.getSemester()
-            );
-        } else {
-            // For images (JPG/PNG), use vision API
-            byte[] imageBytes = fileStorageService.loadFileAsBytes(paper.getFileName());
-            result = geminiService.analyzePaperImage(imageBytes, paper.getFileType());
-        }
+        byte[] fileBytes = fileStorageService.loadFileAsBytes(paper.getFileName());
+        
+        String result = geminiService.analyzePaperFile(
+                fileBytes,
+                paper.getFileType(),
+                paper.getTitle(),
+                paper.getSubjectName(),
+                paper.getSubjectCode(),
+                paper.getYear(),
+                paper.getSemester()
+        );
 
         Map<String, String> response = new HashMap<>();
         response.put("paperId", id.toString());

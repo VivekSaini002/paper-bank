@@ -95,7 +95,7 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: '20px',
           marginBottom: '40px',
         }}>
@@ -111,6 +111,13 @@ export default function AdminDashboard() {
               <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>⚙️</div>
               <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '6px' }}>Manage Papers</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Edit, update, or delete</p>
+            </div>
+          </Link>
+          <Link href="/admin/students" style={{ textDecoration: 'none' }}>
+            <div className="glass-card" style={{ padding: '28px', cursor: 'pointer', textAlign: 'center' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>👨‍🎓</div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '6px' }}>Manage Students</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>View student directory</p>
             </div>
           </Link>
           <Link href="/ai" style={{ textDecoration: 'none' }}>

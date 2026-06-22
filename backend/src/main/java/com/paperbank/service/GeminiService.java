@@ -94,7 +94,63 @@ public class GeminiService {
     }
 
     /**
-     * Analyze a PDF paper by extracting text context and generating solutions.
+     * Unified method to analyze a question paper file (PDF or image) and generate solutions.
+     */
+    public String analyzePaperFile(byte[] fileBytes, String fileType, String paperTitle, String subjectName, String subjectCode,
+                                   Integer year, Integer semester) {
+        try {
+            MimeType mimeType = getMimeType(fileType);
+            ByteArrayResource resource = new ByteArrayResource(fileBytes);
+            Media media = new Media(mimeType, resource);
+
+            SystemMessage systemMessage = new SystemMessage(
+                    "You are an expert academic tutor. You are given a university/college question paper file (image or PDF). " +
+                    "Your task is to analyze it thoroughly, extract the actual questions from the paper, and generate accurate, step-by-step solutions for them.\n\n" +
+                    "CRITICAL INSTRUCTIONS:\n" +
+                    "1. Do NOT guess or generate random mock questions. You must solve the ACTUAL questions present in the uploaded paper.\n" +
+                    "2. Maintain the structure, Sections, Parts, or Series (e.g., Section A, Section B, Part 1, Part 2, Group A, Group B, Series A/B/C) as printed in the exam paper.\n" +
+                    "3. Extract and list each question exactly as written in the paper before providing its solution.\n" +
+                    "4. Provide detailed, correct, and academically rigorous step-by-step solutions. Use clear code blocks for programming questions and formatted math blocks for mathematical equations.\n\n" +
+                    "Format the output as a beautiful markdown document using this structure:\n\n" +
+                    "# 🎓 SOLVED QUESTION PAPER\n\n" +
+                    "## 📋 EXAM SUMMARY\n" +
+                    "- **Paper Title:** " + paperTitle + "\n" +
+                    "- **Subject:** " + subjectName + " (" + subjectCode + ")\n" +
+                    "- **Year & Semester:** Year " + year + ", Semester " + semester + "\n" +
+                    "- **Overall Difficulty:** [Easy / Medium / Hard with brief reasoning]\n" +
+                    "- **Key Topics Identified:** [Brief comma-separated list of topics]\n\n" +
+                    "## 📝 SOLUTIONS BY SECTION/SERIES\n\n" +
+                    "For each Section/Part/Series found in the paper, create a heading and list the questions and solutions:\n\n" +
+                    "### [Section / Part / Series Name, e.g., Section A]\n\n" +
+                    "#### ❓ Question [Number/ID]: [Exact Question Text from the paper]\n" +
+                    "- **Key Concept:** *[e.g., Database Normalization, Integration]*\n" +
+                    "- **Solution:**\n" +
+                    "  [Provide the detailed, step-by-step explanation or code implementation here]\n" +
+                    "- **💡 Exam Tip:** *[Hint/best practice or common mistake to avoid]*\n\n" +
+                    "*(Repeat the Question template for all questions in the section)*\n\n" +
+                    "## 📚 KEY FORMULAS & CHEAT SHEET\n" +
+                    "- [List core definitions, formulas, or quick summary concepts extracted from this exam]\n\n" +
+                    "## 🎯 PREPARATION RECOMMENDATIONS\n" +
+                    "- [List 3-4 steps/topics the student should study based on this exam's coverage]"
+            );
+
+            UserMessage userMessage = UserMessage.builder()
+                    .text("Extract and solve all the actual questions from the attached question paper, preserving its sections, series, and structure.")
+                    .media(media)
+                    .build();
+
+            Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
+            ChatResponse response = chatModel.call(prompt);
+            return response.getResult().getOutput().getText();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error analyzing paper: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Analyze a PDF paper by extracting text context and generating solutions (Fallback).
      */
     public String analyzePaperPdf(String paperTitle, String subjectName, String subjectCode,
                                    Integer year, Integer semester) {
@@ -149,6 +205,7 @@ public class GeminiService {
         return switch (fileType.toLowerCase()) {
             case "jpg", "jpeg" -> MimeTypeUtils.IMAGE_JPEG;
             case "png" -> MimeTypeUtils.IMAGE_PNG;
+            case "pdf" -> MimeType.valueOf("application/pdf");
             default -> MimeTypeUtils.APPLICATION_OCTET_STREAM;
         };
     }
